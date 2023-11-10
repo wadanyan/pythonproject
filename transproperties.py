@@ -12,23 +12,20 @@ def properties_to_yaml(properties_data):
         keys = key.split(".")
         current_dict = yaml_data
 
-        for k in keys[:-1]:
+        for i, k in enumerate(keys[:-1]):
             if k.isdigit():
                 k = int(k)
-            if k not in current_dict:
-                current_dict[k] = {}
-            current_dict = current_dict[k]
-
-        if keys[-1].isdigit():
-            keys[-1] = int(keys[-1])
-
-        # Check if the last key is already present as a list
-        if keys[-1] in current_dict:
-            if not isinstance(current_dict[keys[-1]], list):
-                current_dict[keys[-1]] = [current_dict[keys[-1]]]
-            current_dict[keys[-1]].append(parse_value(value.strip()))
-        else:
-            current_dict[keys[-1]] = parse_value(value.strip())
+                if k not in current_dict:
+                    current_dict[k] = {}
+                current_dict = current_dict[k]
+            elif i == len(keys) - 2:
+                if not isinstance(current_dict.get(k), list):
+                    current_dict[k] = []
+                current_dict[k].append(parse_value(value.strip()))
+            else:
+                if k not in current_dict:
+                    current_dict[k] = {}
+                current_dict = current_dict[k]
 
     return yaml_data
 
