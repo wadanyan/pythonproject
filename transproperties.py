@@ -28,7 +28,7 @@ def properties_to_yaml(properties_data):
                 current_dict[keys[-1]] = [current_dict[keys[-1]]]
             current_dict[keys[-1]].append(parse_value(value.strip()))
         else:
-            current_dict[keys[-1]] = [parse_value(value.strip())]
+            current_dict[keys[-1]] = parse_value(value.strip())
 
     return yaml_data
 
