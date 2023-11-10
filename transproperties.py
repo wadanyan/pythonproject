@@ -23,7 +23,9 @@ def properties_to_yaml(properties_data):
             keys[-1] = int(keys[-1])
 
         # Check if the last key is already present as a list
-        if keys[-1] in current_dict and isinstance(current_dict[keys[-1]], list):
+        if keys[-1] in current_dict:
+            if not isinstance(current_dict[keys[-1]], list):
+                current_dict[keys[-1]] = [current_dict[keys[-1]]]
             current_dict[keys[-1]].append(parse_value(value.strip()))
         else:
             current_dict[keys[-1]] = parse_value(value.strip())
