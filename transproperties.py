@@ -13,10 +13,14 @@ def properties_to_yaml(properties_data):
         current_dict = yaml_data
 
         for k in keys[:-1]:
+            if k.isdigit():
+                k = int(k)
             if k not in current_dict:
                 current_dict[k] = {}
             current_dict = current_dict[k]
 
+        if keys[-1].isdigit():
+            keys[-1] = int(keys[-1])
         current_dict[keys[-1]] = parse_value(value.strip())
 
     return yaml_data
@@ -43,4 +47,4 @@ yaml_save_file_path = "from_github_file_clear_proper/example.yaml"
 with open(yaml_save_file_path, "w") as yaml_save_file:
     yaml.dump(yaml_data, yaml_save_file, default_flow_style=False)
 
-print("YAMLファイルに保存されました:", yaml_save_file_path)
+print("YAMLファイルに保存
