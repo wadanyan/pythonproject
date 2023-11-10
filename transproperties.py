@@ -1,40 +1,46 @@
-#プロパティ化
-#これを使う前にファイルの中でタブ文字を使っているのを空白に変換する必要がある
+import re
 import yaml
 
-def yaml_to_properties(yaml_data):
-    properties = []
+def properties_to_yaml(properties_data):
+    yaml_data = {}
 
-    def traverse(data, path=[]):
-        if isinstance(data, dict):
-            for key, value in data.items():
-                traverse(value, path + [key])
-        elif isinstance(data, list):
-            for index, value in enumerate(data):
-                traverse(value, path + [str(index)])
-        else:
-            properties.append(".".join(path) + "=" + str(data).replace("\n"," "))
+    for line in properties_data.split("\n"):
+        if line.strip() == "":
+            continue
 
-    traverse(yaml_data)
-    return "\n".join(properties)
+        key, value = line.split("=")
+        keys = key.split(".")
+        current_dict = yaml_data
 
-# YAMLファイルの読み込み
-diff_all_foldernames = glob.glob("from_github_file_clear/"+"*")
-#diff_all_foldernames = ["from_github_history_allcode_clear\\filenum_1_0_0\\2021-06-08T15-40-34Z_config.yml"]
-print("yaml to prpperties")
-for file in diff_all_foldernames:
-    
-    try:
-        with open(file, "r") as yaml_file:
-            yaml_data = yaml.safe_load(yaml_file)
-    except:
-        print("error")
-        continue
-    # YAMLデータをプロパティファイル形式に変換
-    properties_content = yaml_to_properties(yaml_data)
+        for k in keys[:-1]:
+            if k not in current_dict:
+                current_dict[k] = {}
+            current_dict = current_dict[k]
 
-    # プロパティファイルに保存
-    save_file_name = "from_github_file_clear_proper/" + str(file.split("\\")[-1].split(".")[0]) + ".properties"
-    with open(save_file_name, "w") as properties_file:
-        properties_file.write(properties_content)
-    print("ファイルに保存されました: " + str(save_file_name))
+        current_dict[keys[-1]] = parse_value(value.strip())
+
+    return yaml_data
+
+def parse_value(value):
+    # Try to convert value to int or float if possible
+    if re.match(r"^-?\d+$", value):
+        return int(value)
+    elif re.match(r"^-?\d+\.\d+$", value):
+        return float(value)
+    else:
+        return value
+
+# プロパティファイルの読み込み
+properties_file_path = "from_github_file_clear_proper/example.properties"
+with open(properties_file_path, "r") as properties_file:
+    properties_data = properties_file.read()
+
+# プロパティデータをYAMLに変換
+yaml_data = properties_to_yaml(properties_data)
+
+# YAMLデータをファイルに保存
+yaml_save_file_path = "from_github_file_clear_proper/example.yaml"
+with open(yaml_save_file_path, "w") as yaml_save_file:
+    yaml.dump(yaml_data, yaml_save_file, default_flow_style=False)
+
+print("YAMLファイルに保存されました:", yaml_save_file_path)
